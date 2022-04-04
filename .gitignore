@@ -1,0 +1,6 @@
+*__pycache__
+.vscode
+training_results/*.monitor.csv
+*log*
+weights.bin.*
+checkpoint

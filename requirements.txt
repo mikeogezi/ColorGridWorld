@@ -1,0 +1,7 @@
+stable-baselines3
+keras==2.8.0
+git+https://github.com/okibeogezi/keras-rl2
+tensorflow
+torch
+termcolor
+transformers
