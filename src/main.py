@@ -25,7 +25,8 @@ parser.add_argument('--sleep_period', '-S', help='Sleep period between steps mad
 parser.add_argument('--text_encoder', '-e', help='Huggingface encoder to be used in encoding instructions', type=str, default='google/bert_uncased_L-2_H-128_A-2')
 parser.add_argument('--results_dir', '-r', type=str, default='./training_results')
 parser.add_argument('--weights_path', '-o', type=str, default='./weights.bin')
-parser.add_argument('--visualize', '-v', type=bool, default=True)
+parser.add_argument('--visualize', '-v', dest='visualize', action='store_true', default=True)
+parser.add_argument('--no-visualize', '-nv', dest='visualize', action='store_false')
 parser.add_argument('--learning_rate', '-lr', type=float, default=2.5e-4)
 parser.add_argument('--max_eps', type=float, default=.35)
 parser.add_argument('--min_eps', type=float, default=.075)
@@ -49,7 +50,7 @@ class Main():
         self.max_episodes = 2
         self.env = gym.make('ColorBoardEnv-v1', seed=args.seed, sleep_period_between_steps=args.sleep_period, text_encoder=args.text_encoder)
         print('ColorBoardEnv-v1 env initialised')
- 
+
         self.env = Monitor(self.env, os.path.join(args.results_dir, '{}'.format(int(time.time()))), allow_early_resets=True)
         print('Env wrapped in monitor')
 

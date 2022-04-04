@@ -162,6 +162,9 @@ class ColorBoardEnv(gym.Env):
         return np.concatenate((self.__instruction_embedding, np.array(self.__player_position).reshape((1, 2)), self.__flattened_board), axis=1)
 
     def render(self, mode):
+        if mode != 'human':
+            return
+
         print('•' + '-' * BOARD_COLS * 2 + '•')
         for r in range(BOARD_ROWS):
             print('|', end='')
