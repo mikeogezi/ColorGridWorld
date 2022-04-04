@@ -23,6 +23,7 @@ REWARDS = {
     'invalid_stop': -5,
     'move': -1,
     'invalid_move': -1,
+    'lose': -5,
 }
 COLOR_MAP = {
     'red': 1,
@@ -42,13 +43,14 @@ T = '◢◣'
 D = '◀▶'
 
 class ColorBoardEnv(gym.Env):
-    def __init__(self, seed=None, sleep_period_between_steps=0., text_encoder='google/bert_uncased_L-2_H-128_A-2'):
+    def __init__(self, seed=None, sleep_period_between_steps=0., text_encoder='google/bert_uncased_L-2_H-128_A-2', max_steps_per_episode=100):
         print('Starting up ColorBoard environment...')
         self.start_time = time.time()
         self.seed = seed
         if self.seed is not None:
             np.random.seed(self.seed)
         self.sleep_period_between_steps = sleep_period_between_steps
+        self.max_steps_per_episode = max_steps_per_episode
 
         self.tokenizer = BertTokenizer.from_pretrained(text_encoder)
         self.model = BertModel.from_pretrained(text_encoder)
@@ -102,8 +104,8 @@ class ColorBoardEnv(gym.Env):
 
         time.sleep(self.sleep_period_between_steps)
         action_str = self.action_info_map[action]
-        # print(action_str)
 
+        time_up = self.step_count >= self.max_steps_per_episode
         __current_row, __current_col = self.__player_position
         __current_color = COLORS[self.__board[__current_row, __current_col] - 1]
         __next = deepcopy(self.__player_position)
@@ -137,8 +139,12 @@ class ColorBoardEnv(gym.Env):
             else:
                 invalid_move = invalid_stop = True
 
-        self.__player_position = __next
+        if not time_up:
+            self.__player_position = __next
 
+        if time_up:
+            reward = REWARDS['lose']
+            cprint('🤖 loses!', 'white', 'on_red')
         if invalid_stop:
             reward = REWARDS['invalid_stop']
         elif invalid_move:

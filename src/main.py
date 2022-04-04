@@ -33,6 +33,7 @@ parser.add_argument('--min_eps', type=float, default=.075)
 parser.add_argument('--gamma', type=float, default=.995)
 parser.add_argument('--window_length', type=int, default=1)
 parser.add_argument('--total_steps', type=int, default=100000)
+parser.add_argument('--max_steps_per_episode', type=int, default=100)
 
 args = parser.parse_args()
 
@@ -45,11 +46,11 @@ class Main():
     def __init__(self, weights_path=args.weights_path):
         self.weights_path = weights_path
 
-        self.max_steps_per_episode = 10000
+        self.max_steps_per_episode = args.max_steps_per_episode
         self.total_steps = args.total_steps
         self.samp_freq = 10
         self.max_episodes = 2
-        self.env = gym.make('ColorBoardEnv-v1', seed=args.seed, sleep_period_between_steps=args.sleep_period, text_encoder=args.text_encoder)
+        self.env = gym.make('ColorBoardEnv-v1', seed=args.seed, sleep_period_between_steps=args.sleep_period, text_encoder=args.text_encoder, max_steps_per_episode=args.max_steps_per_episode)
         print('ColorBoardEnv-v1 env initialised')
 
         self.env = Monitor(self.env, os.path.join(args.results_dir, '{}'.format(int(time.time()))), allow_early_resets=True)
