@@ -3,4 +3,5 @@
 training_results/*.monitor.csv
 *log*
 weights.bin.*
-checkpointnohup.out
+checkpoint
+nohup.out
