@@ -42,7 +42,7 @@ T = '◢◣'
 D = '◀▶'
 
 class ColorBoardEnv(gym.Env):
-    def __init__(self, seed, sleep_period_between_steps, text_encoder):
+    def __init__(self, seed=None, sleep_period_between_steps=0., text_encoder='google/bert_uncased_L-2_H-128_A-2'):
         print('Starting up ColorBoard environment...')
         self.start_time = time.time()
         self.seed = seed
@@ -85,10 +85,10 @@ class ColorBoardEnv(gym.Env):
         return self.__observe()
 
     def __init_game(self):
-        self.__board = np.random.randint(low=1, high=7, size=(BOARD_ROWS, BOARD_COLS))
+        self.__board = np.random.randint(low=1, high=len(COLOR_MAP) + 1, size=(BOARD_ROWS, BOARD_COLS))
         self.__flattened_board = self.__board.reshape((1, BOARD_COLS * BOARD_ROWS))
         self.__player_position = Position(np.random.randint(BOARD_ROWS), np.random.randint(BOARD_COLS))
-        self.__target_color = np.random.choice(COLORS)
+        self.__target_color = COLORS[np.random.choice(np.unique(self.__board)) - 1]
         self.__instruction = 'Go to a {} position'.format(self.__target_color)
 
         inputs = self.tokenizer(self.__instruction, return_tensors="pt")
