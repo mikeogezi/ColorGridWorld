@@ -32,6 +32,7 @@ parser.add_argument('--max_eps', type=float, default=.35)
 parser.add_argument('--min_eps', type=float, default=.075)
 parser.add_argument('--gamma', type=float, default=.995)
 parser.add_argument('--window_length', type=int, default=1)
+parser.add_argument('--total_steps', type=int, default=100000)
 
 args = parser.parse_args()
 
@@ -45,7 +46,7 @@ class Main():
         self.weights_path = weights_path
 
         self.max_steps_per_episode = 10000
-        self.total_steps = 100000
+        self.total_steps = args.total_steps
         self.samp_freq = 10
         self.max_episodes = 2
         self.env = gym.make('ColorBoardEnv-v1', seed=args.seed, sleep_period_between_steps=args.sleep_period, text_encoder=args.text_encoder)
