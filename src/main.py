@@ -14,22 +14,30 @@ from rl.policy import LinearAnnealedPolicy, BoltzmannQPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
 from rl.callbacks import FileLogger, ModelIntervalCheckpoint
 import argparse
+import shutil
+import glob
 
 from stable_baselines3.common.monitor import Monitor
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--seed', '-s', help='Seed to be used in generating random numbers', type=int, default=42)
+parser.add_argument('--seed', '-s', help='Seed to be used in generating random numbers', type=lambda x: x if x is None else int(x), default=None)
 parser.add_argument('--sleep_period', '-S', help='Sleep period between steps made by the agent in seconds', type=float, default=0.)
 parser.add_argument('--text_encoder', '-e', help='Huggingface encoder to be used in encoding instructions', type=str, default='google/bert_uncased_L-2_H-128_A-2')
 parser.add_argument('--results_dir', '-r', type=str, default='./training_results')
 parser.add_argument('--weights_path', '-o', type=str, default='./weights.bin')
 parser.add_argument('--visualize', '-v', type=bool, default=True)
+parser.add_argument('--learning_rate', '-lr', type=float, default=2.5e-4)
+parser.add_argument('--max_eps', type=float, default=.35)
+parser.add_argument('--min_eps', type=float, default=.075)
+parser.add_argument('--gamma', type=float, default=.995)
+parser.add_argument('--window_length', type=int, default=1)
+
 args = parser.parse_args()
 
 if not os.path.exists(args.results_dir):
   os.makedirs(args.results_dir)
 
-WINDOW_LENGTH = 4
+WINDOW_LENGTH = args.window_length
 
 class Main():
     def __init__(self, weights_path=args.weights_path):
@@ -65,11 +73,11 @@ class Main():
 
         memory = SequentialMemory(limit=self.total_steps, window_length=WINDOW_LENGTH)
         policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', 
-            value_max=.35, value_min=.075, value_test=.05, nb_steps=self.total_steps)
+            value_max=args.max_eps, value_min=args.min_eps, value_test=.05, nb_steps=self.total_steps)
         
-        dqn = DQNAgent(model=model, policy=policy, gamma=.995, memory=memory,
+        dqn = DQNAgent(model=model, policy=policy, gamma=args.gamma, memory=memory,
             nb_actions=self.num_actions, train_interval=4, delta_clip=1.)
-        dqn.compile(Adam(learning_rate=2.5e-4), metrics=['mae'])
+        dqn.compile(Adam(learning_rate=args.learning_rate), metrics=['mae'])
         return dqn
 
     def save_model(self):
@@ -79,8 +87,14 @@ class Main():
     def load_model(self):
         print('Loading model...')
         if os.path.exists(self.weights_path + '.index'):
-            self.dqn_model.load_weights(self.weights_path)
-            return True
+            try:
+              self.dqn_model.load_weights(self.weights_path)
+              return True
+            except ValueError:
+              fs = glob.glob(args.weights_path + '.*')
+              for f in fs:
+                os.unlink(f)
+              return False
         return False
 
 

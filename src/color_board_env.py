@@ -46,7 +46,8 @@ class ColorBoardEnv(gym.Env):
         print('Starting up ColorBoard environment...')
         self.start_time = time.time()
         self.seed = seed
-        np.random.seed(self.seed)
+        if self.seed is not None:
+            np.random.seed(self.seed)
         self.sleep_period_between_steps = sleep_period_between_steps
 
         self.tokenizer = BertTokenizer.from_pretrained(text_encoder)
@@ -78,7 +79,6 @@ class ColorBoardEnv(gym.Env):
     def reset(self):
         self.rewards.clear()
         self.step_count = 0
-        # self.seed += 1
         self.reset_count += 1
         self.__init_game()
 
@@ -162,7 +162,7 @@ class ColorBoardEnv(gym.Env):
         return np.concatenate((self.__instruction_embedding, np.array(self.__player_position).reshape((1, 2)), self.__flattened_board), axis=1)
 
     def render(self, mode):
-        print('/' + '-' * BOARD_COLS * 2 + '\\')
+        print('•' + '-' * BOARD_COLS * 2 + '•')
         for r in range(BOARD_ROWS):
             print('|', end='')
             for c in range(BOARD_COLS):
@@ -174,7 +174,7 @@ class ColorBoardEnv(gym.Env):
                 else:
                     cprint('  ', '{}'.format(pos_color), on, end='')
             print('|')
-        print('\\' + '-' * BOARD_COLS * 2 + '/')
+        print('•' + '-' * BOARD_COLS * 2 + '•')
 
     def stop(self):
         pass
