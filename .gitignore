@@ -1,7 +1,8 @@
 *__pycache__
 .vscode
-training_results/*.monitor.csv
+*training_results/
 *log*
-weights.bin.*
+*weights.bin.*
 checkpoint
-nohup.out
+*experiment.out
+*enum
