@@ -1,10 +1,8 @@
 import numpy as np
 import sys
 
-_3_file = '3x3_enum'
-_2_file = 'enum'
-
 windows = [
+	(0, 0.1),
 	(0, 1),
 	(0, 25),
 	(25, 50),

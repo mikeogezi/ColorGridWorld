@@ -102,6 +102,7 @@ class ColorBoardEnv(gym.Env):
         self.__instruction = None
         self.__target_color = None
         self.__instruction_embedding = None
+        self.__embedding_cache = {}
         self.wins = self.losses = 0
 
     def reset(self):
@@ -121,12 +122,15 @@ class ColorBoardEnv(gym.Env):
         self.__target_color = COLORS[np.random.choice(np.unique(self.__board)) - 1]
         self.__instruction = '{}'.format(self.__target_color)
 
-        inputs = self.tokenizer(self.__instruction, return_tensors="pt")
-        if has_cuda:
-            inputs = inputs.to('cuda')
-
-        outputs = self.model(**inputs)
-        self.__instruction_embedding = outputs.last_hidden_state[:,1:-1,:].mean(dim=1).cpu().detach().numpy()
+        if self.__instruction not in self.__embedding_cache:
+            inputs = self.tokenizer(self.__instruction, return_tensors="pt")
+            if has_cuda:
+                inputs = inputs.to('cuda')
+            outputs = self.model(**inputs)
+            self.__instruction_embedding = outputs.last_hidden_state[:,1:-1,:].mean(dim=1).cpu().detach().numpy()
+            self.__embedding_cache[self.__instruction] = self.__instruction_embedding
+        else:
+            self.__instruction_embedding = self.__embedding_cache[self.__instruction]
 
         msg = '🤖 starting position: {}; 🤖 target color: {}'.format(self.__player_position, self.__target_color)
         print('-' * (len(msg) + 2))
