@@ -1,2 +1,2 @@
-model_checkpoint_path: "weights.bin"
-all_model_checkpoint_paths: "weights.bin"
+model_checkpoint_path: "_3x3_5m_weights.bin"
+all_model_checkpoint_paths: "_3x3_5m_weights.bin"
